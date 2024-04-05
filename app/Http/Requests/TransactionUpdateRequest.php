@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use App\Helpers\ResponseHelper; 
 
-class TransactionRequest extends FormRequest
+class TransactionUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,12 +25,9 @@ class TransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => 'integer',
-            'item_id' => 'required|exists:items,id',
             'is_purchase' => 'required|boolean',
             'item_count' => 'required|integer|min:1',
             'total_item_price' => 'required|numeric|min:0',
-            'transaction_at' => 'required|date|regex:/^(?:\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$/'
         ];
     }
 
@@ -42,4 +39,5 @@ class TransactionRequest extends FormRequest
             'status' => false
         ], 500));
     }
+    
 }

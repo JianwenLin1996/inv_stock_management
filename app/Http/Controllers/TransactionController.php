@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\TransactionRequest;
+use App\Http\Requests\TransactionUpdateRequest;
 use App\Models\ItemLog;
 use App\Models\Transaction;
 
@@ -53,7 +54,7 @@ class TransactionController extends Controller
         $updateLogs = [];
     
         foreach ($futureItemLogs as $futureLog) {
-            if ($futureLog->transaction->is_purchased) {
+            if ($futureLog->transaction->is_purchase) {
                 // Process for purchase
                 $futureLog->total_stock = $prevLog->total_stock + $futureLog->transaction->item_count;
                 $futureLog->total_value = $prevLog->total_value + $futureLog->transaction->total_item_price;
@@ -93,7 +94,9 @@ class TransactionController extends Controller
         $query = Transaction::query();
         
         if ($request->has('is_purchase') && $request->input('is_purchase')) {
-            $query->where('is_purchased', 1);
+            $query->where('is_purchase', 1);
+        } else {
+            $query->where('is_purchase', 0);
         }
 
         if($request->has('item')) {
@@ -101,11 +104,12 @@ class TransactionController extends Controller
             $itemList = explode(",", $item);
             $query->whereIn('item_id', $itemList);
         }
-        
+
         $paginator = $query->paginate(10);
 
         try {
-            $transformedTransactions = $paginator->map(function($transaction) {    
+            $transformedTransactions = $paginator->map(function($transaction) {
+                $transaction->itemLog;
                 return $transaction;
             });
             $responseData = [
@@ -125,20 +129,21 @@ class TransactionController extends Controller
                 // INSERT TRANSACTION //
                 $transaction = new Transaction();
                 $transaction->item_id = $request['item_id'];
-                $transaction->is_purchased = $request['is_purchased'];
+                $transaction->is_purchase = $request['is_purchase'];
                 $transaction->item_count = $request['item_count'];
                 $transaction->total_item_price = $request['total_item_price'];
-                $transaction->transaction_at = Carbon::parse($request['transaction_at'], env('TIMEZONE'));
-                
+                $transaction->transaction_at = Carbon::parse($request['transaction_at'], env('TIMEZONE'));               
+                            
                 // Check if latest item log allow sales to happen
-                $latestItemLog = ItemLog::where('item_id', $transaction->item_id)
+                $nearestLog = ItemLog::where('item_id', $transaction->item_id)
                 ->where('logged_at', '<=', $transaction->transaction_at)
                 ->orderBy('logged_at', 'desc')
-                ->orderBy('id', 'desc')
+                ->orderBy('created_at', 'desc')
                 ->first();
-                if (($latestItemLog !== null) && ($latestItemLog->total_stock < $transaction->item_count) && (!$transaction->is_purchased)) {
+                if (($nearestLog !== null) && ($nearestLog->total_stock < $transaction->item_count) && (!$transaction->is_purchase)) {
                     return ResponseHelper::error('Stock insufficient.');   
-                } elseif (($latestItemLog === null) && (!$transaction->is_purchased)) {
+                } elseif (($nearestLog === null) && (!$transaction->is_purchase)) { 
+                    // If first log wants to be udpated to sales, return error
                     return ResponseHelper::error('Please purchase stock first.');   
                 }
                 
@@ -153,17 +158,17 @@ class TransactionController extends Controller
                 $itemLog->logged_at = $transaction->transaction_at;
 
                 // Generate total_stock, total_value, cost_per_item log using available latest item log
-                if ($latestItemLog !== null) {
-                    if ($transaction->is_purchased) {
+                if ($nearestLog !== null) {
+                    if ($transaction->is_purchase) {
                         // Process for purchase
-                        $itemLog->total_stock = $latestItemLog->total_stock + $transaction->item_count;
-                        $itemLog->total_value = $latestItemLog->total_value + $transaction->total_item_price;
+                        $itemLog->total_stock = $nearestLog->total_stock + $transaction->item_count;
+                        $itemLog->total_value = $nearestLog->total_value + $transaction->total_item_price;
                         $itemLog->cost_per_item = $itemLog->total_value / $itemLog->total_stock;
                     }else {
                         // Process for sales
-                        $itemLog->total_stock = $latestItemLog->total_stock - $transaction->item_count;
-                        $itemLog->total_value = $latestItemLog->total_value - ($latestItemLog->cost_per_item * $transaction->item_count);
-                        $itemLog->cost_per_item = $latestItemLog->cost_per_item;
+                        $itemLog->total_stock = $nearestLog->total_stock - $transaction->item_count;
+                        $itemLog->total_value = $nearestLog->total_value - ($nearestLog->cost_per_item * $transaction->item_count);
+                        $itemLog->cost_per_item = $nearestLog->cost_per_item;
                     }
                 }else {
                     $itemLog->total_stock = $transaction->item_count;
@@ -206,10 +211,10 @@ class TransactionController extends Controller
         }
     }
 
-    public function update(TransactionRequest $request, $id)
+    public function update(TransactionUpdateRequest $request, $id)
     {
         /**
-        * Updating transaction_at requires special treatment, thus not available ATM
+        * Updating imte_id and transaction_at requires special treatment, thus not available ATM
         * User should opt to delete then create a new transaction in new transaction_at date to achieve the same result
         **/
         try {  
@@ -220,8 +225,7 @@ class TransactionController extends Controller
             }
 
             // Update transaction first
-            $transaction->item_id = $request['item_id'];
-            $transaction->is_purchased = $request['is_purchased'];
+            $transaction->is_purchase = $request['is_purchase'];
             $transaction->item_count = $request['item_count'];
             $transaction->total_item_price = $request['total_item_price'];
                 
@@ -238,18 +242,30 @@ class TransactionController extends Controller
             ->orderBy('logged_at', 'desc')
             ->orderBy('created_at', 'desc')
             ->first();
-            
-            if ($transaction->is_purchased) {
-                // Process for purchase
-                $log->total_stock = $nearestLog->total_stock + $transaction->item_count;
-                $log->total_value = $nearestLog->total_value + $transaction->total_item_price;
-                $log->cost_per_item = $log->total_value / $log->total_stock;
-            } else {
-                // Process for sales
-                $log->total_stock = $nearestLog->total_stock - $transaction->item_count;
-                $log->total_value = $nearestLog->total_value - ($nearestLog->cost_per_item * $transaction->item_count);
-                $log->cost_per_item = $log->total_value / $log->total_stock;
+
+            // If first log wants to be udpated to sales, return error
+            if (($nearestLog === null) && (!$transaction->is_purchase)) {
+                return ResponseHelper::error('Please purchase stock first.');   
             }
+
+            if ($nearestLog !== null) {
+                if ($transaction->is_purchase) {
+                    $log->total_stock = $nearestLog->total_stock + $transaction->item_count;
+                    $log->total_value = $nearestLog->total_value + $transaction->total_item_price;
+                    $log->cost_per_item = $log->total_value / $log->total_stock;
+                } else {
+                    // Process for sales
+                    $log->total_stock = $nearestLog->total_stock - $transaction->item_count;
+                    $log->total_value = $nearestLog->total_value - ($nearestLog->cost_per_item * $transaction->item_count);
+                    $log->cost_per_item = $log->total_value / $log->total_stock;
+                }
+            } else {
+                $log->total_stock = $transaction->item_count;
+                $log->total_value = $transaction->total_item_price;
+                $log->cost_per_item = $log->total_value / $log->total_stock;     
+            }
+
+            // Process for purchase
             if (($log->total_stock < 0) || ($log->total_value < 0)) {
                 return ResponseHelper::error("Transaction failed to be updated. Invalid value.", statusCode:500);
             }
@@ -269,7 +285,8 @@ class TransactionController extends Controller
 
             
         }  catch (\Exception $e) {
-            return ResponseHelper::error("Transaction failed to be updated.", statusCode:500);
+            return ResponseHelper::error($e->getMessage(), statusCode:500);
+            // return ResponseHelper::error("Transaction failed to be updated.", statusCode:500);
         }
     }
 

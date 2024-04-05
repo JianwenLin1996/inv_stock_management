@@ -21,6 +21,8 @@ class ItemLog extends Model
         'logged_at',
     ];
     
+    protected $visible = ['cost_per_item'];
+    
     public function item()
     {
         return $this->belongsTo(Item::class);

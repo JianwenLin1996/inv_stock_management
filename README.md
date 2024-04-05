@@ -18,4 +18,4 @@ Manage items relevant to your store.
 Obtain the lastest available item cost via items/{id}/cost.
 
 ## CRUD for Transaction
-Manage purchase and sales of items in store.
+Manage purchase and sales of items in stock.

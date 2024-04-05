@@ -13,7 +13,7 @@ class Transaction extends Model
 
     protected $fillable = [
         'item_id',
-        'is_purchased',
+        'is_purchase',
         'item_count',
         'total_item_price',
         'transaction_at',
