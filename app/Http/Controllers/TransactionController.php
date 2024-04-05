@@ -202,6 +202,8 @@ class TransactionController extends Controller
             if ($transaction === null) {
                 return ResponseHelper::notFound('Transaction not found.');              
             }
+            
+            $transaction->itemLog;
             return ResponseHelper::success('Transaction returned successfully.', data:[
                 'transaction'=> $transaction,
             ]); 
