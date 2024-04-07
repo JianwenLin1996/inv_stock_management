@@ -141,10 +141,10 @@ class TransactionController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->first();
                 if (($nearestLog !== null) && ($nearestLog->total_stock < $transaction->item_count) && (!$transaction->is_purchase)) {
-                    return ResponseHelper::error('Stock insufficient.');   
+                    return ResponseHelper::unprocessableEntity('Stock insufficient.');   
                 } elseif (($nearestLog === null) && (!$transaction->is_purchase)) { 
                     // If first log wants to be udpated to sales, return error
-                    return ResponseHelper::error('Please purchase stock first.');   
+                    return ResponseHelper::unprocessableEntity('Please purchase stock first.');   
                 }
                 
                 if(! $transaction->save()) {
@@ -183,7 +183,7 @@ class TransactionController extends Controller
 
                 // UPDATE FUTURE ITEMLOG //
                 if (! $this->processItemLogs($itemLog, $transaction)) {
-                    return ResponseHelper::error("Transaction failed to be created. Invalid value.", statusCode:500);
+                    return ResponseHelper::unprocessableEntity("Transaction failed to be created. Invalid value.");
                 }
 
                 return ResponseHelper::success('Transaction created successfully.', data:[
@@ -247,7 +247,7 @@ class TransactionController extends Controller
 
             // If first log wants to be udpated to sales, return error
             if (($nearestLog === null) && (!$transaction->is_purchase)) {
-                return ResponseHelper::error('Please purchase stock first.');   
+                return ResponseHelper::unprocessableEntity('Please purchase stock first.');   
             }
 
             if ($nearestLog !== null) {
@@ -269,12 +269,12 @@ class TransactionController extends Controller
 
             // Process for purchase
             if (($log->total_stock < 0) || ($log->total_value < 0)) {
-                return ResponseHelper::error("Transaction failed to be updated. Invalid value.", statusCode:500);
+                return ResponseHelper::unprocessableEntity("Transaction failed to be updated. Invalid value.");
             }
             
             // Check if there is any unaligned data in future item log
             if (! $this->processItemLogs($log, $transaction, $log->id)) {
-                return ResponseHelper::error("Transaction failed to be updated. Invalid value.", statusCode:500);
+                return ResponseHelper::unprocessableEntity("Transaction failed to be updated. Invalid value.");
             }
 
             $transaction->save();
@@ -287,8 +287,7 @@ class TransactionController extends Controller
 
             
         }  catch (\Exception $e) {
-            return ResponseHelper::error($e->getMessage(), statusCode:500);
-            // return ResponseHelper::error("Transaction failed to be updated.", statusCode:500);
+            return ResponseHelper::error("Transaction failed to be updated.", statusCode:500);
         }
     }
 
@@ -316,7 +315,7 @@ class TransactionController extends Controller
             ->first();
             
             if (! $this->processItemLogs($nearestLog, $transaction, $log->id)) {
-                return ResponseHelper::error("Transaction failed to be deleted. Invalid value.", statusCode:500);
+                return ResponseHelper::unprocessableEntity("Transaction failed to be deleted. Invalid value.");
             }
 
             $transaction->delete();

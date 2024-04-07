@@ -25,7 +25,6 @@ class TransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => 'integer',
             'item_id' => 'required|exists:items,id',
             'is_purchase' => 'required|boolean',
             'item_count' => 'required|integer|min:1',
@@ -40,6 +39,6 @@ class TransactionRequest extends FormRequest
             'message' => 'Validation failed',
             'data' => $validator->errors(), //->all() to return list
             'status' => false
-        ], 500));
+        ], 422));
     }
 }

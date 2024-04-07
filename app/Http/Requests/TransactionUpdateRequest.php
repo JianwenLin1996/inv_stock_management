@@ -37,7 +37,7 @@ class TransactionUpdateRequest extends FormRequest
             'message' => 'Validation failed',
             'data' => $validator->errors(), //->all() to return list
             'status' => false
-        ], 500));
+        ], 422));
     }
     
 }

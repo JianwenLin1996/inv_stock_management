@@ -37,6 +37,6 @@ class AuthRequest extends FormRequest
             'message' => 'Validation failed',
             'data' => $validator->errors(),
             'status' => false
-        ], 500));
+        ], 422));
     }
 }

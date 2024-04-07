@@ -62,7 +62,7 @@ class ItemController extends Controller
         }
     }
     
-    public function update(Request $request,  $id)
+    public function update(ItemRequest $request,  $id)
     {
         try {            
             // Check if item exists

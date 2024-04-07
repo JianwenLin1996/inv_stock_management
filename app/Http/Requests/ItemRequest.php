@@ -25,7 +25,6 @@ class ItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => 'integer',
             'name' => 'required|string',
             'description' => 'string'
             //
@@ -38,6 +37,6 @@ class ItemRequest extends FormRequest
             'message' => 'Validation failed',
             'data' => $validator->errors(),
             'status' => false
-        ], 500));
+        ], 422));
     }
 }
