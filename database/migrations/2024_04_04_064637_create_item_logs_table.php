@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('item_id')->constrained()->cascadeOnDelete();
             $table->foreignId('transaction_id')->constrained()->cascadeOnDelete();
             $table->unsignedInteger('total_stock');
-            $table->decimal('total_value', 12, 3);
-            $table->decimal('cost_per_item', 12, 3);
+            $table->decimal('total_value', 20, 8);
+            $table->decimal('cost_per_item', 20, 8);
             $table->timestamp('logged_at');
             $table->timestamps();
             $table->softDeletes();
