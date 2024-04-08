@@ -3,7 +3,7 @@ This project demonstrates the basic operation of stock management system.
 
 # System Setup
 1. Install Composer and Laravel in your machine to run this project. Link: https://getcomposer.org/, https://laravel.com
-2. Run composer install to install dependencies
+2. Run _composer install_ to install dependencies
 3. Copy .env.example and rename it to .env
 4. Update DB_* and DB_*_TEST variables, TIMEZONE in .env
 5. Run _php artisan key:generate_ to generate new application key
