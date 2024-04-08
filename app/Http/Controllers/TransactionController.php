@@ -412,7 +412,7 @@ class TransactionController extends Controller
     public function update(TransactionUpdateRequest $request, $id)
     {
         /**
-        * Updating imte_id and transaction_at requires special treatment, thus not available ATM
+        * Updating item_id and transaction_at requires special treatment, thus not available ATM
         * User should opt to delete then create a new transaction in new transaction_at date to achieve the same result
         **/
         try {  
