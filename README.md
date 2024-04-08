@@ -16,14 +16,19 @@ This project demonstrates the basic operation of stock management system.
 # Features
 ## JWT Authentication
 Signup and login to obtain jwt token. Then put it as bearer header as authorization.
+
 Obtain user information via api/me.
+
 If token is expired, call api/refresh to obtained refreshed token.
 
 ## CRUD for Item
 Manage items relevant to your store. (Create, Read all or specific item, Update and Delete).
+
 Obtain the lastest cost_per_item via api/items/{id}/cost.
 
 ## CRUD for Transaction
 Manage purchase and sales of items in stock (Create, Read all or specific transaction, Update and Delete).
+
 Transaction list by default shows sales, add is_purchase=1 to show purchase. Cost_per_item during the transaction will also be shown along.
+
 ** Transaction item and date CANNOT be updated atm. Suggest to delete transaction and create new to achieve the same effect.
