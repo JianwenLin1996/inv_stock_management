@@ -9,7 +9,7 @@ use App\Models\ItemLog;
 use App\Models\Transaction;
 
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+use Carbon\Carbon; 
 
 class TransactionController extends Controller
 {    
@@ -89,6 +89,70 @@ class TransactionController extends Controller
         }
     }
     
+
+    /**
+        * @OA\GET(
+        * path="/api/transactions",
+        * summary="Get transaction list for specific id",
+        * description="Get transaction by providing page, is_purchase, item_id. Default is_purchase is 0",
+        * operationId="transactionIndex",
+        * tags={"transaction"},
+        * security={ {"bearerAuth": {} } },
+        *   @OA\Parameter(
+        *     name="page",
+        *     in="query",
+        *     @OA\Schema(
+        *      type="integer",
+        *     ),
+        *     required=true,
+        *     example="1",
+        *     description="Page for filter",
+        *   ),
+        *   @OA\Parameter(
+        *     name="is_purchase",
+        *     in="query",
+        *     @OA\Schema(
+        *      type="integer",
+        *     ),
+        *     required=false,
+        *     description="is_purchase = 1 shows only purchase, is_purhase = 0 shows only sales.",
+        *   ),
+        *   @OA\Parameter(
+        *     name="item",
+        *     in="query",
+        *     required=true,
+        *     @OA\Schema(
+        *      type="string",
+        *     ),
+        *     example="1,2,3",
+        *     description="Item id",
+        *   ),
+        * @OA\Response(
+        *    response=200,
+        *    description="Success",
+        *     @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Transaction created successfully."),
+        *       @OA\Property(property="status", type="boolean", example="true"),
+        *       @OA\Property(property="data", type="object", example={}),
+        *     )
+        * ),
+        * @OA\Response(
+        *    response=422,
+        *    description="Invalid transaction value",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Please purchase stock first."),
+        *       @OA\Property(property="status", type="boolean", example="false")
+        *        )
+        * ),
+        * @OA\Response(
+        *    response=401,
+        *    description="Unauthorized",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Unauthorized.")
+        *        )
+        *     )
+        * )
+    */
     public function index(Request $request)
     {
         $query = Transaction::query();
@@ -123,6 +187,54 @@ class TransactionController extends Controller
         }
     }
 
+
+    /**
+        * @OA\Post(
+        * path="/api/transactions",
+        * summary="Create new transaction",
+        * description="Create new transaction by providing item_id, is_purchase, item_count, total_item_price, transaction_at",
+        * operationId="transactionCreate",
+        * tags={"transaction"},
+        * security={ {"bearerAuth": {} } },
+        * @OA\RequestBody(
+        *    required=true,
+        *    description="Pass transaction information",
+        *    @OA\JsonContent(
+        *       type="object",
+        *       required={"item_id","is_purchase","item_count","total_item_price","transaction_at"},
+        *       @OA\Property(property="item_id", type="integer", example="1"),
+        *       @OA\Property(property="is_purchase", type="boolean", example="true"),
+        *       @OA\Property(property="item_count", type="integer", example="20"),
+        *       @OA\Property(property="total_item_price", type="number", example="800"),
+        *       @OA\Property(property="transaction_at", type="string", example="2020-04-01 12:00:00"),
+        *    ),
+        * ),
+        * @OA\Response(
+        *    response=200,
+        *    description="Success",
+        *     @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Transaction created successfully."),
+        *       @OA\Property(property="status", type="boolean", example="true"),
+        *       @OA\Property(property="data", type="object", example={}),
+        *     )
+        * ),
+        * @OA\Response(
+        *    response=422,
+        *    description="Invalid transaction value",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Please purchase stock first."),
+        *       @OA\Property(property="status", type="boolean", example="false")
+        *        )
+        * ),
+        * @OA\Response(
+        *    response=401,
+        *    description="Unauthorized",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Unauthorized.")
+        *        )
+        *     )
+        * )
+    */
     public function store(TransactionRequest $request)
     {
         try {  
@@ -186,6 +298,7 @@ class TransactionController extends Controller
                     return ResponseHelper::unprocessableEntity("Transaction failed to be created. Invalid value.");
                 }
 
+                $transaction->itemLog->cost_per_item = round($transaction->itemLog->cost_per_item, 2);
                 return ResponseHelper::success('Transaction created successfully.', data:[
                     'transaction'=> $transaction,
                 ]); 
@@ -193,7 +306,51 @@ class TransactionController extends Controller
             return ResponseHelper::error("Transaction failed to be created.", statusCode:500);
         }
     }
+    
 
+    /**
+        * @OA\GET(
+        * path="/api/transactions/{id}",
+        * summary="Get specific transaction",
+        * description="Get transaction by providing transaction id.",
+        * operationId="transactionGet",
+        * tags={"transaction"},
+        * security={ {"bearerAuth": {} } },
+        *   @OA\Parameter(
+        *     name="id",
+        *     in="path",
+        *     @OA\Schema(
+        *      type="string",
+        *     ),
+        *     required=true,
+        *     description="Transaction id",
+        *   ),
+        * @OA\Response(
+        *    response=200,
+        *    description="Success",
+        *     @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Transaction created successfully."),
+        *       @OA\Property(property="status", type="boolean", example="true"),
+        *       @OA\Property(property="data", type="object", example={}),
+        *     )
+        * ),
+        * @OA\Response(
+        *    response=422,
+        *    description="Invalid transaction value",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Please purchase stock first."),
+        *       @OA\Property(property="status", type="boolean", example="false")
+        *        )
+        * ),
+        * @OA\Response(
+        *    response=401,
+        *    description="Unauthorized",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Unauthorized.")
+        *        )
+        *     )
+        * )
+    */
     public function show(Request $request, $id)
     {
         try {            
@@ -213,6 +370,61 @@ class TransactionController extends Controller
         }
     }
 
+
+    /**
+        * @OA\Post(
+        * path="/api/transactions/{id}",
+        * summary="Update transaction",
+        * description="Update transaction by providing is_purchase, item_count, total_item_price. Changing item_id or transaction_at is not allowed atm, suggest to delete and create new transaction.",
+        * operationId="transactionUpdate",
+        * tags={"transaction"},
+        * security={ {"bearerAuth": {} } },
+        *   @OA\Parameter(
+        *     name="id",
+        *     in="path",
+        *     @OA\Schema(
+        *      type="string",
+        *     ),
+        *     required=true,
+        *     description="Transaction id",
+        *   ),
+        * @OA\RequestBody(
+        *    required=true,
+        *    description="Pass transaction information",
+        *    @OA\JsonContent(
+        *       type="object",
+        *       required={"is_purchase","item_count","total_item_price"},
+        *       @OA\Property(property="is_purchase", type="boolean", example="true"),
+        *       @OA\Property(property="item_count", type="integer", example="20"),
+        *       @OA\Property(property="total_item_price", type="number", example="800"),
+        *    ),
+        * ),
+        * @OA\Response(
+        *    response=200,
+        *    description="Success",
+        *     @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Transaction created successfully."),
+        *       @OA\Property(property="status", type="boolean", example="true"),
+        *       @OA\Property(property="data", type="object", example={}),
+        *     )
+        * ),
+        * @OA\Response(
+        *    response=422,
+        *    description="Invalid transaction value",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Please purchase stock first."),
+        *       @OA\Property(property="status", type="boolean", example="false")
+        *        )
+        * ),
+        * @OA\Response(
+        *    response=401,
+        *    description="Unauthorized",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Unauthorized.")
+        *        )
+        *     )
+        * )
+    */
     public function update(TransactionUpdateRequest $request, $id)
     {
         /**
@@ -280,7 +492,7 @@ class TransactionController extends Controller
             $transaction->save();
             $log->save();
 
-
+            $transaction->itemLog->cost_per_item = round($transaction->itemLog->cost_per_item, 2);
             return ResponseHelper::success('Transaction updated successfully.', data:[
                 'transaction'=> $transaction,
             ]); 
@@ -291,6 +503,50 @@ class TransactionController extends Controller
         }
     }
 
+    
+    /**
+        * @OA\DELETE(
+        * path="/api/transactions/{id}",
+        * summary="Delete specific transaction",
+        * description="Delete transaction by providing transaction id.",
+        * operationId="transactionDelete",
+        * tags={"transaction"},
+        * security={ {"bearerAuth": {} } },
+        *   @OA\Parameter(
+        *     name="id",
+        *     in="path",
+        *     @OA\Schema(
+        *      type="string",
+        *     ),
+        *     required=true,
+        *     description="Transaction id",
+        *   ),
+        * @OA\Response(
+        *    response=200,
+        *    description="Success",
+        *     @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Transaction created successfully."),
+        *       @OA\Property(property="status", type="boolean", example="true"),
+        *       @OA\Property(property="data", type="object", example={}),
+        *     )
+        * ),
+        * @OA\Response(
+        *    response=422,
+        *    description="Invalid transaction value",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Please purchase stock first."),
+        *       @OA\Property(property="status", type="boolean", example="false")
+        *        )
+        * ),
+        * @OA\Response(
+        *    response=401,
+        *    description="Unauthorized",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Unauthorized.")
+        *        )
+        *     )
+        * )
+    */
     public function destroy(Request $request, $id)
     {
         try {  
