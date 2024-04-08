@@ -1,13 +1,15 @@
 # Stock Management System
 This project demonstrates the basic operation of stock management system.
 
-# Installation
+# System Setup
 1. Install Composer and Laravel in your machine to run this project. Link: https://getcomposer.org/, https://laravel.com
 2. Run composer install to install dependencies
-3. Update DB variables, TIMEZONE in .env
+3. Update DB_* and DB_*_TEST variables, TIMEZONE in .env
 4. Run php artisan key:generate to generate new application key
-5. Run php artisan migrate
-6. Run artisan jwt:secret
+5. Run php artisan migrate to migrate database table
+6. Run php artisan db:seed --class=ItemSeeder to create mock item (needed if only test for Transaction functionality)
+7. Run artisan jwt:secret to generate JWT secret in .env
+8. Run php artisan serve to serve the system
 
 # Features
 ## JWT Authentication

@@ -109,7 +109,7 @@ class TransactionController extends Controller
 
         try {
             $transformedTransactions = $paginator->map(function($transaction) {
-                $transaction->itemLog;
+                $transaction->itemLog->cost_per_item = round($transaction->itemLog->cost_per_item, 2);
                 return $transaction;
             });
             $responseData = [
@@ -203,7 +203,7 @@ class TransactionController extends Controller
                 return ResponseHelper::notFound('Transaction not found.');              
             }
             
-            $transaction->itemLog;
+            $transaction->itemLog->cost_per_item = round($transaction->itemLog->cost_per_item, 2);
             return ResponseHelper::success('Transaction returned successfully.', data:[
                 'transaction'=> $transaction,
             ]); 
