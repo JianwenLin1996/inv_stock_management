@@ -32,7 +32,9 @@ Manage purchase and sales of items in stock (Create, Read all or specific transa
 
 Transaction list by default shows sales, add is_purchase=1 to show purchase. Cost_per_item during the transaction will also be shown along.
 
-** Transaction item and date CANNOT be updated atm. Suggest to delete transaction and create new to achieve the same effect.
+Can create or delete transaction be it purchase or sales, at ANY date, only if the log is aligned, else will throw error.
+
+** Transaction item and date CANNOT be updated atm. Suggest to delete transaction and create new transaction to achieve the same effect.
 
 # API Feature Test
 Run _php artisan test_ to test Auth, Item and Transaction controller after any updates on the flow.
