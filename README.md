@@ -11,7 +11,7 @@ This project demonstrates the basic operation of stock management system.
 7. Run artisan jwt:secret to generate JWT secret in .env
 8. Run php artisan l5-swagger:generate to generate swagger
 9. Run php artisan serve to serve the system
-10. Visit localhost:8000/api/documentation to specification for every API
+10. Visit localhost:8000/api/documentation to check specification for every APIs
 
 # Features
 ## JWT Authentication
@@ -32,3 +32,6 @@ Manage purchase and sales of items in stock (Create, Read all or specific transa
 Transaction list by default shows sales, add is_purchase=1 to show purchase. Cost_per_item during the transaction will also be shown along.
 
 ** Transaction item and date CANNOT be updated atm. Suggest to delete transaction and create new to achieve the same effect.
+
+# API Feature Test
+Run php artisan test to test Auth, Item and Transaction controller after any updates on the flow.

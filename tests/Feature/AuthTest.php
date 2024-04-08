@@ -127,8 +127,6 @@ class AuthTest extends TestCase
 
         $response = $this->postJson('/api/refresh');
 
-        dump($response);
-
         $response->assertStatus(200);       
     }
     
