@@ -9,7 +9,9 @@ This project demonstrates the basic operation of stock management system.
 5. Run php artisan migrate to migrate database table
 6. Run php artisan db:seed --class=ItemSeeder to create mock item (needed if only test for Transaction functionality)
 7. Run artisan jwt:secret to generate JWT secret in .env
-8. Run php artisan serve to serve the system
+8. Run php artisan l5-swagger:generate to generate swagger
+9. Run php artisan serve to serve the system
+10. Visit localhost:8000/api/documentation to specification for every API
 
 # Features
 ## JWT Authentication

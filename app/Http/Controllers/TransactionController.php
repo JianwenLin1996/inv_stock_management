@@ -93,7 +93,7 @@ class TransactionController extends Controller
     /**
         * @OA\GET(
         * path="/api/transactions",
-        * summary="Get transaction list for specific id",
+        * summary="Get transaction list for specific item",
         * description="Get transaction by providing page, is_purchase, item_id. Default is_purchase is 0",
         * operationId="transactionIndex",
         * tags={"transaction"},
@@ -131,18 +131,10 @@ class TransactionController extends Controller
         *    response=200,
         *    description="Success",
         *     @OA\JsonContent(
-        *       @OA\Property(property="message", type="string", example="Transaction created successfully."),
+        *       @OA\Property(property="message", type="string", example="Transactions returned successfully."),
         *       @OA\Property(property="status", type="boolean", example="true"),
         *       @OA\Property(property="data", type="object", example={}),
         *     )
-        * ),
-        * @OA\Response(
-        *    response=422,
-        *    description="Invalid transaction value",
-        *    @OA\JsonContent(
-        *       @OA\Property(property="message", type="string", example="Please purchase stock first."),
-        *       @OA\Property(property="status", type="boolean", example="false")
-        *        )
         * ),
         * @OA\Response(
         *    response=401,
@@ -222,7 +214,7 @@ class TransactionController extends Controller
         *    response=422,
         *    description="Invalid transaction value",
         *    @OA\JsonContent(
-        *       @OA\Property(property="message", type="string", example="Please purchase stock first."),
+        *       @OA\Property(property="message", type="string", example="Transaction failed to be updated. Invalid value."),
         *       @OA\Property(property="status", type="boolean", example="false")
         *        )
         * ),
@@ -329,18 +321,10 @@ class TransactionController extends Controller
         *    response=200,
         *    description="Success",
         *     @OA\JsonContent(
-        *       @OA\Property(property="message", type="string", example="Transaction created successfully."),
+        *       @OA\Property(property="message", type="string", example="Transaction returned successfully."),
         *       @OA\Property(property="status", type="boolean", example="true"),
         *       @OA\Property(property="data", type="object", example={}),
         *     )
-        * ),
-        * @OA\Response(
-        *    response=422,
-        *    description="Invalid transaction value",
-        *    @OA\JsonContent(
-        *       @OA\Property(property="message", type="string", example="Please purchase stock first."),
-        *       @OA\Property(property="status", type="boolean", example="false")
-        *        )
         * ),
         * @OA\Response(
         *    response=401,
@@ -403,7 +387,7 @@ class TransactionController extends Controller
         *    response=200,
         *    description="Success",
         *     @OA\JsonContent(
-        *       @OA\Property(property="message", type="string", example="Transaction created successfully."),
+        *       @OA\Property(property="message", type="string", example="Transaction updated successfully."),
         *       @OA\Property(property="status", type="boolean", example="true"),
         *       @OA\Property(property="data", type="object", example={}),
         *     )
@@ -412,7 +396,7 @@ class TransactionController extends Controller
         *    response=422,
         *    description="Invalid transaction value",
         *    @OA\JsonContent(
-        *       @OA\Property(property="message", type="string", example="Please purchase stock first."),
+        *       @OA\Property(property="message", type="string", example="Transaction failed to be updated. Invalid value."),
         *       @OA\Property(property="status", type="boolean", example="false")
         *        )
         * ),
@@ -525,7 +509,7 @@ class TransactionController extends Controller
         *    response=200,
         *    description="Success",
         *     @OA\JsonContent(
-        *       @OA\Property(property="message", type="string", example="Transaction created successfully."),
+        *       @OA\Property(property="message", type="string", example="Transaction deleted successfully."),
         *       @OA\Property(property="status", type="boolean", example="true"),
         *       @OA\Property(property="data", type="object", example={}),
         *     )
@@ -534,7 +518,7 @@ class TransactionController extends Controller
         *    response=422,
         *    description="Invalid transaction value",
         *    @OA\JsonContent(
-        *       @OA\Property(property="message", type="string", example="Please purchase stock first."),
+        *       @OA\Property(property="message", type="string", example="Transaction failed to be deleted. Invalid value."),
         *       @OA\Property(property="status", type="boolean", example="false")
         *        )
         * ),

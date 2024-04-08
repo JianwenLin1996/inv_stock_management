@@ -112,11 +112,11 @@ class AuthTest extends TestCase
 
     public function test_me_only_when_login(): void
     {    
-        $response = $this->postJson('/api/me');
+        $response = $this->getJson('/api/me');
         
         $response->assertStatus(401); 
 
-        $response = $this->actingAs($this->user)->postJson('/api/me');
+        $response = $this->actingAs($this->user)->getJson('/api/me');
         
         $response->assertStatus(200); 
     }

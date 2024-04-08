@@ -18,6 +18,33 @@ class ItemController extends Controller
         $this->middleware('auth:api');
     }
 
+    
+    /**
+        * @OA\GET(
+        * path="/api/items",
+        * summary="Get item list",
+        * description="Get item list",
+        * operationId="itemIndex",
+        * tags={"item"},
+        * security={ {"bearerAuth": {} } },
+        * @OA\Response(
+        *    response=200,
+        *    description="Success",
+        *     @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Transactions returned successfully."),
+        *       @OA\Property(property="status", type="boolean", example="true"),
+        *       @OA\Property(property="data", type="object", example={}),
+        *     )
+        * ),
+        * @OA\Response(
+        *    response=401,
+        *    description="Unauthorized",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Unauthorized.")
+        *        )
+        *     )
+        * )
+    */
     public function index(Request $request)
     {
         $items = Item::get();
@@ -26,6 +53,51 @@ class ItemController extends Controller
         ]); 
     }
 
+    
+    /**
+        * @OA\Post(
+        * path="/api/items",
+        * summary="Create new item",
+        * description="Create new item by providing name, description",
+        * operationId="itemCreate",
+        * tags={"item"},
+        * security={ {"bearerAuth": {} } },
+        * @OA\RequestBody(
+        *    required=true,
+        *    description="Pass item information",
+        *    @OA\JsonContent(
+        *       type="object",
+        *       required={"name","description"},
+        *       @OA\Property(property="name", type="string", example="Water Bottle"),
+        *       @OA\Property(property="description", type="string", example="BPA free water bottle")
+        *    ),
+        * ),
+        * @OA\Response(
+        *    response=200,
+        *    description="Success",
+        *     @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Item created successfully."),
+        *       @OA\Property(property="status", type="boolean", example="true"),
+        *       @OA\Property(property="data", type="object", example={}),
+        *     )
+        * ),
+        * @OA\Response(
+        *    response=422,
+        *    description="Invalid item value",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Validation failed."),
+        *       @OA\Property(property="status", type="boolean", example="false")
+        *        )
+        * ),
+        * @OA\Response(
+        *    response=401,
+        *    description="Unauthorized",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Unauthorized.")
+        *        )
+        *     )
+        * )
+    */
     public function store(ItemRequest $request)
     {   
         try {  
@@ -45,6 +117,42 @@ class ItemController extends Controller
         }
     }
 
+    
+    /**
+        * @OA\GET(
+        * path="/api/items/{id}",
+        * summary="Get specific item",
+        * description="Get item by providing item id.",
+        * operationId="itemGet",
+        * tags={"item"},
+        * security={ {"bearerAuth": {} } },
+        *   @OA\Parameter(
+        *     name="id",
+        *     in="path",
+        *     @OA\Schema(
+        *      type="string",
+        *     ),
+        *     required=true,
+        *     description="Item id",
+        *   ),
+        * @OA\Response(
+        *    response=200,
+        *    description="Success",
+        *     @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Item returned successfully."),
+        *       @OA\Property(property="status", type="boolean", example="true"),
+        *       @OA\Property(property="data", type="object", example={}),
+        *     )
+        * ),
+        * @OA\Response(
+        *    response=401,
+        *    description="Unauthorized",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Unauthorized.")
+        *        )
+        *     )
+        * )
+    */
     public function show(Request $request, $id)
     {
         try {            
@@ -62,6 +170,60 @@ class ItemController extends Controller
         }
     }
     
+    
+    /**
+        * @OA\Post(
+        * path="/api/items/{id}",
+        * summary="Update item",
+        * description="Update item by providing name and description.",
+        * operationId="itemUpdate",
+        * tags={"item"},
+        * security={ {"bearerAuth": {} } },
+        *   @OA\Parameter(
+        *     name="id",
+        *     in="path",
+        *     @OA\Schema(
+        *      type="string",
+        *     ),
+        *     required=true,
+        *     description="Item id",
+        *   ),
+        * @OA\RequestBody(
+        *    required=true,
+        *    description="Pass item information",
+        *    @OA\JsonContent(
+        *       type="object",
+        *       required={"name","description"},
+        *       @OA\Property(property="name", type="string", example="Water bottle"),
+        *       @OA\Property(property="description", type="string", example="Premium water bottle. 500ml.")
+        *    ),
+        * ),
+        * @OA\Response(
+        *    response=200,
+        *    description="Success",
+        *     @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Item updated successfully."),
+        *       @OA\Property(property="status", type="boolean", example="true"),
+        *       @OA\Property(property="data", type="object", example={}),
+        *     )
+        * ),
+        * @OA\Response(
+        *    response=422,
+        *    description="Invalid item value",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Validation failed."),
+        *       @OA\Property(property="status", type="boolean", example="false")
+        *        )
+        * ),
+        * @OA\Response(
+        *    response=401,
+        *    description="Unauthorized",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Unauthorized.")
+        *        )
+        *     )
+        * )
+    */
     public function update(ItemRequest $request,  $id)
     {
         try {            
@@ -72,7 +234,9 @@ class ItemController extends Controller
             }
             
             $item->name = $request['name'];
-            $item->description = $request['description'];
+            if ($request->has('description')) {
+                $item->description = $request['description'];
+            }
             
             if (! $item->save()) {
                 return ResponseHelper::error("Item failed to be updated.", statusCode:500);
@@ -87,6 +251,42 @@ class ItemController extends Controller
         }
     }
 
+    
+    /**
+        * @OA\DELETE(
+        * path="/api/items/{id}",
+        * summary="Delete specific item",
+        * description="Delete item by providing item id.",
+        * operationId="itemDelete",
+        * tags={"item"},
+        * security={ {"bearerAuth": {} } },
+        *   @OA\Parameter(
+        *     name="id",
+        *     in="path",
+        *     @OA\Schema(
+        *      type="string",
+        *     ),
+        *     required=true,
+        *     description="Item id",
+        *   ),
+        * @OA\Response(
+        *    response=200,
+        *    description="Success",
+        *     @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Item deleted successfully."),
+        *       @OA\Property(property="status", type="boolean", example="true"),
+        *       @OA\Property(property="data", type="object", example={}),
+        *     )
+        * ),
+        * @OA\Response(
+        *    response=401,
+        *    description="Unauthorized",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Unauthorized.")
+        *        )
+        *     )
+        * )
+    */
     public function destroy(Request $request, $id)
     {
         try {  
@@ -107,6 +307,42 @@ class ItemController extends Controller
         }
     }
     
+    
+    /**
+        * @OA\GET(
+        * path="/api/items/{id}/cost",
+        * summary="Get cost",
+        * description="Get cost for specific item.",
+        * operationId="itemShowCost",
+        * tags={"item"},
+        * security={ {"bearerAuth": {} } },
+        *   @OA\Parameter(
+        *     name="id",
+        *     in="path",
+        *     @OA\Schema(
+        *      type="string",
+        *     ),
+        *     required=true,
+        *     description="Item id",
+        *   ),
+        * @OA\Response(
+        *    response=200,
+        *    description="Success",
+        *     @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Current item cost returned successfully."),
+        *       @OA\Property(property="status", type="boolean", example="true"),
+        *       @OA\Property(property="data", type="object", example={}),
+        *     )
+        * ),
+        * @OA\Response(
+        *    response=401,
+        *    description="Unauthorized",
+        *    @OA\JsonContent(
+        *       @OA\Property(property="message", type="string", example="Unauthorized.")
+        *        )
+        *     )
+        * )
+    */
     public function showCost(Request $request, $id)
     {
         // Check if transaction exists
